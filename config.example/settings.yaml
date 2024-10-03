@@ -1,0 +1,721 @@
+# settings.yaml
+
+total_records: 3 # Total number of records to generate
+output_base_name: "synthetic_dataset" # Base name of the output file
+
+predefined_domains:
+  language_list:
+    - Italian
+    - English
+    - Spanish
+    - French
+    - German
+    - Other
+  country_list:
+    - Italy
+    - Other_European_Countries
+    - Non_European_Countries
+
+columns:
+  - name: name
+    description: "Person's first name"
+    type: str
+    nullable: false
+    openai_generation: true
+    prompt_type: type0
+
+  - name: gender
+    description: "Person's gender identity"
+    type: str
+    domain:
+      - male
+      - female
+      - non-binary
+      - other
+    distribution:
+      type: discrete
+      percentages:
+        male: 49
+        female: 49
+        non-binary: 1
+        other: 1
+    selection_type: single
+    nullable: false
+
+  - name: date_of_birth
+    description: "Person's date of birth"
+    type: str
+    distribution:
+      type: date_range
+      parameters:
+        start_date: "1958-01-01"
+        end_date: "2005-12-31"
+    format: "dd/mm/yyyy"
+    nullable: false
+
+  - name: country_of_birth
+    description: "Country where the person was born"
+    type: str
+    domain: country_list
+    distribution:
+      type: discrete
+      percentages:
+        Italy: 60
+        Other_European_Countries: 20
+        Non_European_Countries: 20
+    selection_type: single
+    nullable: false
+
+  - name: city_of_birth
+    description: "City where the person was born"
+    type: str
+    nullable: false
+    openai_generation: false
+    prompt_type: type0
+
+  - name: nationalities
+    description: "Nationalities held by the person"
+    type: list of str
+    domain:
+      - Italian
+      - Other
+    distribution:
+      type: discrete
+      percentages:
+        Italian: 70
+        Other: 30
+    selection_type: multiple
+    nullable: false
+
+  - name: first_citizen
+    description: "First in family to hold citizenship in Italy"
+    type: str
+    domain:
+      - yes
+      - no
+      - other
+    distribution:
+      type: discrete
+      percentages:
+        yes: 20
+        no: 75
+        other: 5
+    selection_type: single
+    nullable: false
+
+  - name: languages
+    description: "Languages spoken by the person"
+    type: list of str
+    domain: language_list
+    distribution:
+      type: discrete
+      percentages:
+        Italian: 80
+        English: 50
+        Spanish: 20
+        French: 15
+        German: 10
+        Other: 5
+    selection_type: multiple
+    nullable: false
+
+  - name: language_proficiency
+    description: "Proficiency levels of languages spoken"
+    type: list of str
+    domain:
+      - A1
+      - A2
+      - B1
+      - B2
+      - C1
+      - C2
+      - Native
+    distribution:
+      type: discrete
+      percentages:
+        A1: 10
+        A2: 15
+        B1: 20
+        B2: 25
+        C1: 15
+        C2: 10
+        Native: 5
+    selection_type: multiple
+    nullable: false
+
+  - name: relationship_status
+    description: "Current family status"
+    type: str
+    domain:
+      - single
+      - married
+      - divorced
+      - widowed
+      - other
+    distribution:
+      type: discrete
+      percentages:
+        single: 50
+        married: 40
+        divorced: 5
+        widowed: 3
+        other: 2
+    selection_type: single
+    nullable: false
+
+  - name: country_of_residency
+    description: "Country where the person currently lives"
+    type: str
+    domain: country_list
+    distribution:
+      type: discrete
+      percentages:
+        Italy: 80
+        Other_European_Countries: 10
+        Non_European_Countries: 10
+    selection_type: single
+    nullable: false
+
+  - name: city_of_residency
+    description: "City where the person currently lives"
+    type: str
+    nullable: false
+    openai_generation: false
+    prompt_type: type0
+
+  - name: type_of_location
+    description: "Type of area the person lives in"
+    type: str
+    domain:
+      - within the city
+      - periphery
+      - countryside
+    distribution:
+      type: discrete
+      percentages:
+        within the city: 60
+        periphery: 30
+        countryside: 10
+    selection_type: single
+    nullable: false
+
+  - name: residency_permit
+    description: "Does the person have a residency permit to live in Italy?"
+    type: str
+    domain:
+      - yes
+      - no
+      - other
+    distribution:
+      type: discrete
+      percentages:
+        yes: 20
+        no: 80
+    selection_type: single
+    nullable: true
+    dependencies:
+      - field: country_of_residency
+        condition: "not in ['Italy', 'Other_European_Countries']"
+
+  - name: type_of_permit
+    description: "Type of residency permit"
+    type: str
+    domain:
+      - study visa
+      - work visa
+      - permanent residency
+      - temporary residency
+      - refugee status
+    distribution:
+      type: discrete
+      percentages:
+        study visa: 30
+        work visa: 40
+        permanent residency: 20
+        temporary residency: 5
+        refugee status: 5
+    selection_type: single
+    nullable: true
+    dependencies:
+      - field: residency_permit
+        value: yes
+
+  - name: permit_emission_date
+    description: "Date when the residency permit was issued"
+    type: str
+    distribution:
+      type: date_range
+      parameters:
+        start_date: "2015-01-01"
+        end_date: "2023-12-31"
+    format: "dd/mm/yyyy"
+    nullable: true
+    dependencies:
+      - field: residency_permit
+        value: yes
+
+  - name: permit_expiration_date
+    description: "Date when the residency permit expires"
+    type: str
+    distribution:
+      type: date_range
+      parameters:
+        start_date: "2023-01-01"
+        end_date: "2030-12-31"
+    format: "dd/mm/yyyy"
+    nullable: true
+    dependencies:
+      - field: residency_permit
+        value: yes
+
+  - name: family_status
+    description: "Are your parents separated or divorced?"
+    type: str
+    domain:
+      - yes
+      - no
+      - other
+    distribution:
+      type: discrete
+      percentages:
+        yes: 20
+        no: 75
+        other: 5
+    selection_type: single
+    nullable: false
+
+  - name: adoption
+    description: "Was the person adopted?"
+    type: str
+    domain:
+      - yes
+      - no
+    distribution:
+      type: discrete
+      percentages:
+        yes: 5
+        no: 95
+    selection_type: single
+    nullable: false
+
+  - name: siblings
+    description: "Number of siblings the person has"
+    type: int
+    domain: [0, 1, 2, 3, 4, 5, 6, 7]
+    distribution:
+      type: discrete
+      percentages:
+        0: 20
+        1: 40
+        2: 25
+        3: 10
+        4: 3
+        5: 1
+        6: 0.5
+        7: 0.5
+    nullable: false
+
+  - name: ethnicity
+    description: "Person's ethnic background"
+    type: str
+    domain:
+      - White
+      - Black
+      - Asian
+      - Hispanic
+      - Middle Eastern
+      - Mixed
+      - Other
+    distribution:
+      type: discrete
+      percentages:
+        White: 60
+        Black: 10
+        Asian: 15
+        Hispanic: 5
+        Middle Eastern: 5
+        Mixed: 3
+        Other: 2
+    selection_type: single
+    nullable: false
+
+  - name: disability
+    description: "Does the person have a recognized disability or condition?"
+    type: str
+    domain:
+      - yes
+      - no
+      - other
+    distribution:
+      type: discrete
+      percentages:
+        yes: 10
+        no: 85
+        other: 5
+    selection_type: single
+    nullable: false
+
+  - name: disability_type
+    description: "Type of disability or condition"
+    type: list of str
+    domain:
+      - physical
+      - cognitive
+      - sensory
+      - chronic
+      - other
+      - prefer not to say
+    distribution:
+      type: discrete
+      percentages:
+        physical: 30
+        cognitive: 25
+        sensory: 20
+        chronic: 15
+        other: 5
+        prefer not to say: 5
+    selection_type: multiple
+    nullable: true
+    dependencies:
+      - field: disability
+        value: yes
+
+  - name: lgbtq_status
+    description: "Does the person identify as part of the LGBTQ+ community?"
+    type: str
+    domain:
+      - yes
+      - no
+      - other
+    distribution:
+      type: discrete
+      percentages:
+        yes: 10
+        no: 85
+        other: 5
+    selection_type: single
+    nullable: false
+
+  - name: lgbtq_identity
+    description: "Person's LGBTQ+ identity"
+    type: list of str
+    domain:
+      - lesbian
+      - gay
+      - bisexual
+      - transgender
+      - non-binary
+      - queer
+      - other
+      - prefer not to say
+    distribution:
+      type: discrete
+      percentages:
+        lesbian: 15
+        gay: 20
+        bisexual: 30
+        transgender: 10
+        non-binary: 5
+        queer: 10
+        other: 5
+        prefer not to say: 5
+    selection_type: multiple
+    nullable: true
+    dependencies:
+      - field: lgbtq_status
+        value: yes
+
+  - name: religion_and_belief
+    description: "Person's religious or spiritual belief"
+    type: str
+    domain:
+      - Christian
+      - Muslim
+      - Jewish
+      - Hindu
+      - Buddhist
+      - Atheist
+      - Agnostic
+      - Other
+    distribution:
+      type: discrete
+      percentages:
+        Christian: 60
+        Muslim: 15
+        Jewish: 5
+        Hindu: 5
+        Buddhist: 5
+        Atheist: 5
+        Agnostic: 3
+        Other: 2
+    selection_type: single
+    nullable: false
+
+  - name: refugee_status
+    description: "Is the person currently, or have they ever been, a refugee?"
+    type: str
+    domain:
+      - yes
+      - no
+    distribution:
+      type: discrete
+      percentages:
+        yes: 2
+        no: 98
+    selection_type: single
+    nullable: false
+
+  - name: extreme_events
+    description: "Has the person experienced any extreme life events?"
+    type: str
+    domain:
+      - yes
+      - no
+    distribution:
+      type: discrete
+      percentages:
+        yes: 10
+        no: 90
+    selection_type: single
+    nullable: false
+
+  - name: type_extreme_events
+    description: "Type of extreme event experienced"
+    type: str
+    nullable: true
+    dependencies:
+      - field: extreme_events
+        value: yes
+
+  - name: first_generation
+    description: "First in family to graduate from university"
+    type: str
+    domain:
+      - yes
+      - no
+      - other
+    distribution:
+      type: discrete
+      percentages:
+        yes: 30
+        no: 65
+        other: 5
+    selection_type: single
+    nullable: false
+
+  - name: bullying
+    description: "Has the person experienced bullying related to their social identity?"
+    type: str
+    domain:
+      - yes
+      - no
+    distribution:
+      type: discrete
+      percentages:
+        yes: 15
+        no: 85
+    selection_type: single
+    nullable: false
+
+  - name: discrimination
+    description: "Has the person experienced discrimination due to their social identity?"
+    type: str
+    domain:
+      - yes
+      - no
+    distribution:
+      type: discrete
+      percentages:
+        yes: 15
+        no: 85
+    selection_type: single
+    nullable: false
+
+  - name: harassment
+    description: "Has the person experienced harassment related to their social identity?"
+    type: str
+    domain:
+      - yes
+      - no
+    distribution:
+      type: discrete
+      percentages:
+        yes: 10
+        no: 90
+    selection_type: single
+    nullable: false
+
+  - name: social_exclusion
+    description: "Has the person been excluded due to their social identity?"
+    type: str
+    domain:
+      - yes
+      - no
+    distribution:
+      type: discrete
+      percentages:
+        yes: 10
+        no: 90
+    selection_type: single
+    nullable: false
+
+  - name: current_education_level
+    description: "Person's current level of education"
+    type: str
+    domain:
+      - high school
+      - university
+      - vocational
+      - other
+    distribution:
+      type: discrete
+      percentages:
+        high school: 30
+        university: 50
+        vocational: 15
+        other: 5
+    selection_type: single
+    nullable: false
+
+  - name: current_course_year
+    description: "Current year of course"
+    type: int
+    domain: [1, 2, 3, 4, 5]
+    distribution:
+      type: discrete
+      percentages:
+        1: 20
+        2: 20
+        3: 20
+        4: 20
+        5: 20
+    nullable: true
+    dependencies:
+      - field: current_education_level
+        value_in:
+          - high school
+          - university
+
+  - name: course_status
+    description: "Course status (on time or delayed)"
+    type: str
+    domain:
+      - on time
+      - delayed
+      - graduating
+      - graduated
+    distribution:
+      type: discrete
+      percentages:
+        on time: 70
+        delayed: 20
+        graduating: 5
+        graduated: 5
+    selection_type: single
+    nullable: true
+    dependencies:
+      - field: current_education_level
+        value: university
+
+  - name: failed_years
+    description: "Number of years the person has failed"
+    type: int
+    domain: [0, 1, 2, 3]
+    distribution:
+      type: discrete
+      percentages:
+        0: 80
+        1: 15
+        2: 4
+        3: 1
+    nullable: true
+    dependencies:
+      - field: course_status
+        value: delayed
+
+  - name: high_school_type
+    description: "Type of high school attended"
+    type: str
+    domain:
+      - scientific studies
+      - classical studies
+      - technical
+      - artistic
+      - linguistic
+      - other
+    distribution:
+      type: discrete
+      percentages:
+        scientific studies: 30
+        classical studies: 20
+        technical: 25
+        artistic: 15
+        linguistic: 5
+        other: 5
+    selection_type: single
+    nullable: true
+    dependencies:
+      - field: current_education_level
+        value: high school
+
+  - name: high_school_name
+    description: "Name of the high school"
+    type: str
+    nullable: true
+    dependencies:
+      - field: current_education_level
+        value: high school
+    openai_generation: true
+    prompt_type: school_name_generation
+
+  - name: high_school_city
+    description: "City where the high school is located"
+    type: str
+    nullable: true
+    dependencies:
+      - field: current_education_level
+        value: high school
+    openai_generation: false
+    prompt_type: type0
+
+  - name: high_school_year
+    description: "Year of high school the person is currently in"
+    type: int
+    domain: [1, 2, 3, 4, 5]
+    distribution:
+      type: discrete
+      percentages:
+        1: 20
+        2: 20
+        3: 20
+        4: 20
+        5: 20
+    nullable: true
+    dependencies:
+      - field: current_education_level
+        value: high school
+
+  - name: university_type
+    description: "Degree program the person is attending"
+    type: str
+    domain:
+      - bachelor (3 years)
+      - master (2 years)
+      - single-cycle (5 years)
+      - single-cycle (6 years)
+      - PhD
+      - other
+    distribution:
+      type: discrete
+      percentages:
+        bachelor (3 years): 40
+        master (2 years): 30
+        single-cycle (5 years): 15
+        single-cycle (6 years): 5
+        PhD: 5
+        other: 5
+    selection_type: single
+    nullable: true
+    dependencies:
+      - field: current_education_level
+        value: university

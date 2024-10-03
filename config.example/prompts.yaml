@@ -1,0 +1,36 @@
+# config/prompts.yaml
+
+prompts:
+  type0:
+    model: "gpt-4o-2024-08-06"
+    messages:
+      - role: "system"
+        content: "You are at Data Generator That Creates Realistic data of Italian universities students."
+      - role: "user"
+        content: "Realistic data generated to the students of Italian universities."
+    response_format:
+      type: "json_schema"
+      json_schema:
+        name: "students"
+        schema:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+              description: "Generate a realistic first name."
+            surname:
+              type: "string"
+              description: "Generate a realistic last name."
+            email:
+              type: "string"
+              description: "Generate a realistic email address."
+            phone_number:
+              type: "string"
+              description: "Generate a realistic Italian phone number."
+          required:
+            - name
+            - surname
+            - email
+            - phone_number
+          additionalProperties: False
+        strict: True
